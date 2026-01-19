@@ -70,8 +70,8 @@ always @(posedge clk or posedge reset) begin
     if(reset) begin // if pressed reset
         instr_reg <= 8'b00000000;
     end
-    if(state == FETCH) begin
-        instr_reg <= 'b0;
+    if(state == FETCH) begin // if read FETCH it read data
+        instr_reg <= d_out;
     end
 end
 // ============== MEMORY ===================
@@ -86,8 +86,6 @@ end
 always @(posedge clk) begin
     d_out <= ram[ip]; // Read data for ram
 end
-
-
 
 
 endmodule
