@@ -40,11 +40,6 @@ logic [7:0] ram[3:0];
 initial begin
     $readmemb("memory.mem", ram, 0 , 3);
 end
-// ============== Clocking =================
-always @(posedge clk) begin
-    d_out <= ram[ip]; // Read data for ram
-    num_cycles <= 1 + num_cycles; // Counter
-end
 
 
 
@@ -65,72 +60,104 @@ parameter minus = 3'b001; // DIMINISH
 // lOGIC FSM Fetch -> Decode -> Execute;
 always @(posedge clk or posedge reset) begin
     if(reset) begin // if pressed reset
-        state <= FETCH;
-    end
-    else
-        case(state)
-            FETCH : begin 
-                state <= DECODE;
-            end
-            DECODE : begin
-                state <= EXECUTE;
-            end
-            EXECUTE : begin 
-                case(insturctionReading)
-                        ld : state <= LOAD;
-                        ad : state <= ADD;
-                        minus : state <= DIMINISH;
-                endcase
-            end
-        endcase
-end
-
-// =============== FETCH ==================
-always @(posedge clk or posedge reset) begin
-    if(reset) begin
         ip = 'b0;
-    end
-    else if(state == FETCH) begin
-        ip <= ip + 1;
-        if(num_cycles >= 2) begin
-
-        end
-        // TODO READ NEXT INSTRUCT
-    end
-end
-
-// =============== DECODE =================
-always @(posedge clk or posedge reset) begin
-    if(reset) begin // if pressed reset
+        state <= FETCH;
+        num_cycles <= 0;
         AddresInstruction <= 3'b000;
         insturctionReading <= 3'b000;
         NumCyclesPerfomInstrution <= 2'b00;
     end
-    if(state == DECODE) begin // if read DECODE it read data
-        NumCyclesPerfomInstrution <= d_out[1:0]; // reading clock cycles for done instruction
-        AddresInstruction <= d_out[4:2]; // read adress
-        insturctionReading <= d_out[7:5]; // read command
-    end
+    else
+        case(state)
+            FETCH : begin 
+                // =============== FETCH ==================
+                // 1. Reading instruction
+                // 2. Entered next status
+                // 3. Saved Numeric clock cycles for done instruction
+                // 4. If num_cycles >= 1, flags free bus on
+                // 5. num_cycles decrement 
+                if(num_cycles == 0) begin
+                    d_out <= ram[ip];
+                    ip <= ip + 1;
+                    num_cycles <= NumCyclesPerfomInstrution;
+                    state <= DECODE;
+                    // TODO READ NEXT INSTRUCT
+                end
+            end
+            DECODE : begin
+                NumCyclesPerfomInstrution <= d_out[1:0]; // reading clock cycles for done instruction
+                AddresInstruction <= d_out[4:2]; // read adress
+                insturctionReading <= d_out[7:5]; // read command
+                state <= EXECUTE;
+            end
+            EXECUTE : begin
+                if(num_cycles > 0) begin
+                    num_cycles <= num_cycles - 1; // Waited done instruction
+                end else begin
+                    case(insturctionReading)
+                            ld : state <= LOAD;
+                            ad : state <= ADD;
+                            minus : state <= DIMINISH;
+                    endcase
+                    state <= BUS_FREE;
+                end
+            end
+            BUS_FREE : begin
+                state <= FETCH;
+            end
+        endcase
 end
+// always @(posedge clk or posedge reset) begin
+//     if(reset) begin
+//         ip = 'b0;
+//         state <= FETCH;
+//         num_cycles <= 0;
+//     end
+//     else if(state == FETCH && num_cycles == 0) begin
+//         d_out <= ram[ip];
+//         ip <= ip + 1;
+//         num_cycles <= NumCyclesPerfomInstrution;
+//         state <= DECODE;
+//         // TODO READ NEXT INSTRUCT
+//     end
+// end
+
+// =============== DECODE =================
+// always @(posedge clk or posedge reset) begin
+//     if(reset) begin // if pressed reset
+//         AddresInstruction <= 3'b000;
+//         insturctionReading <= 3'b000;
+//         NumCyclesPerfomInstrution <= 2'b00;
+//     end
+//     if(state == DECODE) begin // if read DECODE it read data
+//         NumCyclesPerfomInstrution <= d_out[1:0]; // reading clock cycles for done instruction
+//         AddresInstruction <= d_out[4:2]; // read adress
+//         insturctionReading <= d_out[7:5]; // read command
+//         state <= EXECUTE;
+//     end
+// end
 
 // ================ EXECUTE ===============
-always @(posedge clk or posedge reset) begin
-    if(reset) begin// if pressed reset
-        acc <= 8'hXX;
-    end
-    else if(state == LOAD) begin
-        acc <= d_out;
-    end
-    else if(state == ADD) begin
-        acc <= acc + d_out;
-    end
-    else if(state == DIMINISH) begin
-        acc <= acc - d_out;
-    end
-    else if(state == BUS_FREE) begin
-        // TODO 
-    end
-end
+// always @(posedge clk or posedge reset) begin
+//     if(reset) begin// if pressed reset
+//         acc <= 8'd0;
+//     end
+//     else if(state == LOAD) begin
+//         acc <= d_out;
+//         num_cycles <= 1 - num_cycles;
+//         state <= BUS_FREE;
+//     end
+//     else if(state == ADD) begin
+//         acc <= acc + d_out;
+//     end
+//     else if(state == DIMINISH) begin
+//         acc <= acc - d_out;
+//     end
+//     else if(state == BUS_FREE) begin
+//         state <= FETCH;
+//         // TODO 
+//     end
+// end
 
 
 
