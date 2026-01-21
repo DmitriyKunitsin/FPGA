@@ -26,6 +26,10 @@ module simple_cpu(
     );
 // ============== Variable =================   
 logic [7:0] acc; // Accumulator (8 bit) A Register for saved of data during calculate
+logic [7:0] alu_b;
+logic [7:0] alu_result;
+logic [1:0] alu_zero;
+logic [1:0] alu_overflow;
 logic [1:0] ip; // Pointer on currented instruct 
 logic [2:0] AddresInstruction; // Adress instruction
 logic [2:0] insturctionReading; // select Instruction
@@ -33,6 +37,15 @@ logic [1:0] NumCyclesPerfomInstrution; // Numer of cycles on done instruction
 logic [7:0] d_out; // Data from ram
 logic [7:0] num_cycles; // Counter Cycles
     
+alu my_alu(
+    .a(acc),
+    .b(alu_b),
+    .op(insturctionReading),
+    .result(alu_result),
+    .zero(alu_zero),
+    .overflow(alu_overflow)
+);    
+
 // ============== MEMORY ===================
 // ============== Memory instruct ==========
 logic [7:0] ram[3:0];
@@ -41,21 +54,19 @@ initial begin
     $readmemb("memory.mem", ram, 0 , 3);
 end
 
-
-
 // =============== Mictrocontroller ================
 enum logic [2:0] {FETCH = 3'b000, // FETCH - freeding
                  DECODE = 3'b001,// DECODE - analitic
                  EXECUTE = 3'b010, // EXECUTE - worked command
                  LOAD = 3'b011,// LOAD DATA for RAM
                  ADD = 3'b100,// +++ plus
-                 DIMINISH = 3'b101,// ---- minus
+                 SUB = 3'b101,// ---- minus
                  BUS_FREE = 3'b110,// Data bus free 
                  FREE = 3'b111} state;
                  
-parameter ld    = 3'b000; // CMD LOAD
-parameter ad    = 3'b010; // CMD ADD
-parameter minus = 3'b001; // DIMINISH
+parameter ld    = 2'b11; // CMD LOAD
+parameter ad    = 2'b00; // CMD ADD
+parameter sub   = 2'b01; // DIMINISH
 
 // lOGIC FSM Fetch -> Decode -> Execute;
 always @(posedge clk or posedge reset) begin
@@ -97,68 +108,32 @@ always @(posedge clk or posedge reset) begin
                     case(insturctionReading)
                             ld : state <= LOAD;
                             ad : state <= ADD;
-                            minus : state <= DIMINISH;
+                            sub : state <= SUB;
                     endcase
                     state <= BUS_FREE;
                 end
+            end
+            LOAD : begin
+                $display("[%0t] LOAD: acc <= %0d (from RAM[%0d])", $time, d_out, AddresInstruction);
+            end
+            ADD : begin
+                $display("[%0t] ADD: acc = %0d + %0d = %0d", $time, acc, alu_b, acc + alu_b);
+                insturctionReading <= ad;
+                alu_b <= d_out;
+                acc <= alu_result;
+                $display("Alu_ADD result : %d", acc);
+            end
+            SUB : begin
+                $display("[%0t] SUB: acc = %0d - %0d = %0d", $time, acc, alu_b, acc - alu_b);
+                insturctionReading <= sub;
+                alu_b <= d_out;
+                acc <= alu_result;
+                $display("Alu_SUB result : %d", acc);
             end
             BUS_FREE : begin
                 state <= FETCH;
             end
         endcase
 end
-// always @(posedge clk or posedge reset) begin
-//     if(reset) begin
-//         ip = 'b0;
-//         state <= FETCH;
-//         num_cycles <= 0;
-//     end
-//     else if(state == FETCH && num_cycles == 0) begin
-//         d_out <= ram[ip];
-//         ip <= ip + 1;
-//         num_cycles <= NumCyclesPerfomInstrution;
-//         state <= DECODE;
-//         // TODO READ NEXT INSTRUCT
-//     end
-// end
-
-// =============== DECODE =================
-// always @(posedge clk or posedge reset) begin
-//     if(reset) begin // if pressed reset
-//         AddresInstruction <= 3'b000;
-//         insturctionReading <= 3'b000;
-//         NumCyclesPerfomInstrution <= 2'b00;
-//     end
-//     if(state == DECODE) begin // if read DECODE it read data
-//         NumCyclesPerfomInstrution <= d_out[1:0]; // reading clock cycles for done instruction
-//         AddresInstruction <= d_out[4:2]; // read adress
-//         insturctionReading <= d_out[7:5]; // read command
-//         state <= EXECUTE;
-//     end
-// end
-
-// ================ EXECUTE ===============
-// always @(posedge clk or posedge reset) begin
-//     if(reset) begin// if pressed reset
-//         acc <= 8'd0;
-//     end
-//     else if(state == LOAD) begin
-//         acc <= d_out;
-//         num_cycles <= 1 - num_cycles;
-//         state <= BUS_FREE;
-//     end
-//     else if(state == ADD) begin
-//         acc <= acc + d_out;
-//     end
-//     else if(state == DIMINISH) begin
-//         acc <= acc - d_out;
-//     end
-//     else if(state == BUS_FREE) begin
-//         state <= FETCH;
-//         // TODO 
-//     end
-// end
-
-
 
 endmodule
