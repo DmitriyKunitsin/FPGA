@@ -24,68 +24,114 @@ module simple_cpu(
     input wire clk,
     input wire reset
     );
-    
-// ---------Variable---------   
+// ============== Variable =================   
 logic [7:0] acc; // Accumulator (8 bit) A Register for saved of data during calculate
 logic [1:0] ip; // Pointer on currented instruct 
-logic [7:0] instr_reg; // Register instructhn - save readed command
+logic [2:0] AddresInstruction; // Adress instruction
+logic [2:0] insturctionReading; // select Instruction
+logic [1:0] NumCyclesPerfomInstrution; // Numer of cycles on done instruction 
 logic [7:0] d_out; // Data from ram
+logic [7:0] num_cycles; // Counter Cycles
+    
+// ============== MEMORY ===================
+// ============== Memory instruct ==========
+logic [7:0] ram[3:0];
 
-// ---Microcontroller - just two state ---
-enum logic { FETCH, DECODE ,EXECUTE } state; // FETCH - freeding , DECODE - analitic ,EXECUTE - worked command
+initial begin
+    $readmemb("memory.mem", ram, 0 , 3);
+end
+// ============== Clocking =================
+always @(posedge clk) begin
+    d_out <= ram[ip]; // Read data for ram
+    num_cycles <= 1 + num_cycles; // Counter
+end
+
 
 
 // =============== Mictrocontroller ================
+enum logic [2:0] {FETCH = 3'b000, // FETCH - freeding
+                 DECODE = 3'b001,// DECODE - analitic
+                 EXECUTE = 3'b010, // EXECUTE - worked command
+                 LOAD = 3'b011,// LOAD DATA for RAM
+                 ADD = 3'b100,// +++ plus
+                 DIMINISH = 3'b101,// ---- minus
+                 BUS_FREE = 3'b110,// Data bus free 
+                 FREE = 3'b111} state;
+                 
+parameter ld    = 3'b000; // CMD LOAD
+parameter ad    = 3'b010; // CMD ADD
+parameter minus = 3'b001; // DIMINISH
+
+// lOGIC FSM Fetch -> Decode -> Execute;
 always @(posedge clk or posedge reset) begin
     if(reset) begin // if pressed reset
         state <= FETCH;
     end
     else
         case(state)
-            FETCH : state <= EXECUTE;
-            DECODE : state <= DECODE;
-            EXECUTE : state <= FETCH;
+            FETCH : begin 
+                state <= DECODE;
+            end
+            DECODE : begin
+                state <= EXECUTE;
+            end
+            EXECUTE : begin 
+                case(insturctionReading)
+                        ld : state <= LOAD;
+                        ad : state <= ADD;
+                        minus : state <= DIMINISH;
+                endcase
+            end
         endcase
 end
 
-// ================Poninter ont instruct ===============
+// =============== FETCH ==================
+always @(posedge clk or posedge reset) begin
+    if(reset) begin
+        ip = 'b0;
+    end
+    else if(state == FETCH) begin
+        ip <= ip + 1;
+        if(num_cycles >= 2) begin
+
+        end
+        // TODO READ NEXT INSTRUCT
+    end
+end
+
+// =============== DECODE =================
 always @(posedge clk or posedge reset) begin
     if(reset) begin // if pressed reset
-        ip <= 'b0;
+        AddresInstruction <= 3'b000;
+        insturctionReading <= 3'b000;
+        NumCyclesPerfomInstrution <= 2'b00;
     end
-    else if(state == FETCH || state == EXECUTE || state == DECODE) begin
-        ip <= 'b1 + ip; // increment tact
+    if(state == DECODE) begin // if read DECODE it read data
+        NumCyclesPerfomInstrution <= d_out[1:0]; // reading clock cycles for done instruction
+        AddresInstruction <= d_out[4:2]; // read adress
+        insturctionReading <= d_out[7:5]; // read command
     end
 end
 
-// =============== ACCUMULATOR ========================
+// ================ EXECUTE ===============
 always @(posedge clk or posedge reset) begin
-    if(reset) begin // if pressed reset
-        acc <= 8'b00000000;
+    if(reset) begin// if pressed reset
+        acc <= 8'hXX;
+    end
+    else if(state == LOAD) begin
+        acc <= d_out;
+    end
+    else if(state == ADD) begin
+        acc <= acc + d_out;
+    end
+    else if(state == DIMINISH) begin
+        acc <= acc - d_out;
+    end
+    else if(state == BUS_FREE) begin
+        // TODO 
     end
 end
 
-// =============== Instruction Register ========================
-always @(posedge clk or posedge reset) begin
-    if(reset) begin // if pressed reset
-        instr_reg <= 8'b00000000;
-    end
-    if(state == FETCH) begin // if read FETCH it read data
-        instr_reg <= d_out;
-    end
-end
-// ============== MEMORY ===================
-
-// --- Memory instruct - jusg four cell by one byte ---
-logic [7:0] ram[3:0];
-
-initial begin
-    $readmemb("memory.mem", ram, 0 , 3);
-end
-
-always @(posedge clk) begin
-    d_out <= ram[ip]; // Read data for ram
-end
 
 
 endmodule
