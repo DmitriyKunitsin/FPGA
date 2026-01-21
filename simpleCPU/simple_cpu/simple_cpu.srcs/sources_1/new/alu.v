@@ -33,30 +33,35 @@ parameter SUB = 2'b01;
 parameter INC = 2'b10; // Increment by 1
 parameter DEC = 2'b11; // Decrement bt 1
 
+logic [7:0] result_int; // local variable for ariphmetic
+
 always @(*) begin
     case (op)
     ADD : begin
-        result <= a + b;
+        result_int <= a + b;
     end
     SUB : begin
-        result <= a - b;
+        result_int <= a - b;
     end
     INC : begin
-        result <= a + b;
+        result_int <= a + b;
     end
     DEC : begin
-        result <= a - b;
+        result_int <= a - b;
     end
     default : begin  // Fault Recovery
-        result <= 8'd0;
+        result_int <= 8'd0;
     end
     endcase
 end        
 
-assign zero = (result == 8'd0);
-
-assign overflow = (op == ADD) ? (a + b < a) : 
-                  (op == SUB) ? (a - b > a) :
-                  1'b0;
+assign result = result_int;
+assign zero = (result_int == 8'd0);
+assign overflow = 
+    (op == ADD) ? (a + b < a) : 
+    (op == SUB) ? (a - b > a) :
+    (op == INC) ? (a == 8'hFF) :  // overflow by incremente 255 → 0
+    (op == DEC) ? (a == 8'd0)  :  // overflow by dicremente 0 → 255
+    1'b0;
 
 endmodule

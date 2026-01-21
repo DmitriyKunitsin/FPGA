@@ -115,12 +115,16 @@ always @(posedge clk or posedge reset) begin
             end
             LOAD : begin
                 $display("[%0t] LOAD: acc <= %0d (from RAM[%0d])", $time, d_out, AddresInstruction);
+                acc <= AddresInstruction; // read Data in adress
+                state <= FETCH;
+                $display("Result CMD_LOAD :acc = %d", acc);
             end
             ADD : begin
                 $display("[%0t] ADD: acc = %0d + %0d = %0d", $time, acc, alu_b, acc + alu_b);
                 insturctionReading <= ad;
                 alu_b <= d_out;
                 acc <= alu_result;
+                state <= FETCH;
                 $display("Alu_ADD result : %d", acc);
             end
             SUB : begin
@@ -128,6 +132,7 @@ always @(posedge clk or posedge reset) begin
                 insturctionReading <= sub;
                 alu_b <= d_out;
                 acc <= alu_result;
+                state <= FETCH;
                 $display("Alu_SUB result : %d", acc);
             end
             BUS_FREE : begin
