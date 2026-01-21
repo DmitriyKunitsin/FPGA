@@ -37,14 +37,7 @@ logic [1:0] NumCyclesPerfomInstrution; // Numer of cycles on done instruction
 logic [7:0] d_out; // Data from ram
 logic [7:0] num_cycles; // Counter Cycles
     
-alu my_alu(
-    .a(acc),
-    .b(alu_b),
-    .op(insturctionReading),
-    .result(alu_result),
-    .zero(alu_zero),
-    .overflow(alu_overflow)
-);    
+alu my_alu(.a(acc), .b(alu_b), .op(insturctionReading), .result(alu_result), .zero(alu_zero), .overflow(alu_overflow));    
 
 // ============== MEMORY ===================
 // ============== Memory instruct ==========
