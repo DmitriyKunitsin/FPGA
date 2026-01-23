@@ -22,16 +22,16 @@
 module alu (
     input  [7:0] a,        // input A
     input  [7:0] b,        // input B
-    input  [1:0] op,       // operation 00=ADD, 01=SUB, 10=INC, 11=DEC
+    input  [2:0] op,       // operation 00=ADD, 01=SUB, 10=INC, 11=DEC
     output [7:0] result,   // Result
     output       zero,      // flag ZERO
     output       overflow // out between 8-bit
 );
 
-parameter ADD = 2'b00; 
-parameter SUB = 2'b01;
-parameter INC = 2'b10; // Increment by 1
-parameter DEC = 2'b11; // Decrement bt 1
+parameter ADD = 3'b100; 
+parameter SUB = 3'b101;
+parameter INC = 3'b010; // Increment by 1
+parameter DEC = 3'b011; // Decrement bt 1
 
 logic [7:0] result_int; // local variable for ariphmetic
 

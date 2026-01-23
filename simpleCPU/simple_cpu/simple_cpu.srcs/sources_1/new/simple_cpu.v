@@ -57,9 +57,9 @@ enum logic [2:0] {FETCH = 3'b000, // FETCH - freeding
                  BUS_FREE = 3'b110,// Data bus free 
                  FREE = 3'b111} state;
                  
-parameter ld    = 2'b11; // CMD LOAD
-parameter ad    = 2'b00; // CMD ADD
-parameter sub   = 2'b01; // DIMINISH
+parameter ld    = 3'b011; // CMD LOAD
+parameter ad    = 3'b100; // CMD ADD
+parameter sub   = 3'b101; // DIMINISH
 
 // lOGIC FSM Fetch -> Decode -> Execute;
 always @(posedge clk or posedge reset) begin
@@ -114,7 +114,7 @@ always @(posedge clk or posedge reset) begin
             end
             ADD : begin
                 $display("[%0t] ADD: acc = %0d + %0d = %0d", $time, acc, alu_b, acc + alu_b);
-                insturctionReading <= ad;
+                //insturctionReading <= ad;
                 alu_b <= AddresInstruction;
                 acc <= alu_result;
                 state <= FETCH;
@@ -122,7 +122,7 @@ always @(posedge clk or posedge reset) begin
             end
             SUB : begin
                 $display("[%0t] SUB: acc = %0d - %0d = %0d", $time, acc, alu_b, acc - alu_b);
-                insturctionReading <= sub;
+                //insturctionReading <= sub;
                 alu_b <= AddresInstruction;
                 acc <= alu_result;
                 state <= FETCH;
