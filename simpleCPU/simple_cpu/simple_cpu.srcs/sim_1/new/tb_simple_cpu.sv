@@ -54,7 +54,7 @@ end
 //               simple_cpu.num_cycles, simple_cpu.d_out);
 //end
  initial begin
-     $monitor("TIME=%0t | acc=%03d | ip=%0d | state=%-9s | num_cycles=%0d | d_out=%03d",
+     $monitor("TIME=%0t | acc=%03d | ip=%0d | state=%-9s | num_cycles=%0d | d_out=%03d | Addres = %03d",
          $time,
          simple_cpu.acc,
          simple_cpu.ip,
@@ -67,7 +67,8 @@ end
          (simple_cpu.state == 3'b110) ? "ADD_WAIT" :
          (simple_cpu.state == 3'b111) ? "SUB_WAIT"    : "UNKNOWN",
          simple_cpu.num_cycles,
-         simple_cpu.d_out
+         simple_cpu.d_out,
+         simple_cpu.AddresInstruction
      );
  end
 

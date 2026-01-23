@@ -80,13 +80,13 @@ always @(posedge clk or posedge reset) begin
                 // 3. Saved Numeric clock cycles for done instruction
                 // 4. If num_cycles >= 1, flags free bus on
                 // 5. num_cycles decrement 
-                if(num_cycles == 0) begin
-                    d_out <= ram[ip];
-                    ip <= ip + 1;
-                    num_cycles <= NumCyclesPerfomInstrution;
-                    state <= DECODE;
-                    // TODO READ NEXT INSTRUCT
-                end
+                //if(num_cycles == 0) begin
+                d_out <= ram[ip];
+                ip <= ip + 1;
+                num_cycles <= NumCyclesPerfomInstrution;
+                state <= DECODE;
+                // TODO READ NEXT INSTRUCT
+                //end
             end
             DECODE : begin
                 NumCyclesPerfomInstrution <= d_out[1:0]; // reading clock cycles for done instruction
@@ -106,13 +106,13 @@ always @(posedge clk or posedge reset) begin
                 //end
             end
             LOAD : begin
-                $monitor("[%0t] LOAD: d_out <= %0d (from RAM[%0d])", $time, d_out, AddresInstruction);
+                //$monitor("[%0t] LOAD: d_out <= %0d (from RAM[%0d])", $time, d_out, AddresInstruction);
                 acc <= AddresInstruction; // read Data in adress
                 state <= FETCH;
-                $monitor("Result CMD_LOAD :acc = %d", acc);
+                //$monitor("Result CMD_LOAD :acc = %d", acc);
             end
             ADD : begin
-                $monitor("[%0t] ADD: acc = %0d + %0d = %0d", $time, acc, alu_b, acc + alu_b);
+                //$monitor("[%0t] ADD: acc = %0d + %0d = %0d", $time, acc, alu_b, acc + alu_b);
                 insturctionReading <= ad;
                 alu_b <= AddresInstruction;
                 state <= ADD_WAIT;
@@ -120,10 +120,10 @@ always @(posedge clk or posedge reset) begin
             ADD_WAIT: begin
                 acc <= alu_result;
                 state <= FETCH;
-                $monitor("Alu_ADD result : %d", acc);
+                //$monitor("Alu_ADD result : %d", acc);
             end
             SUB : begin
-                $monitor("[%0t] SUB: acc = %0d - %0d = %0d", $time, acc, alu_b, acc - alu_b);
+                //$monitor("[%0t] SUB: acc = %0d - %0d = %0d", $time, acc, alu_b, acc - alu_b);
                 //insturctionReading <= sub;
                 alu_b <= AddresInstruction;
                 state <= SUB_WAIT;
@@ -131,7 +131,7 @@ always @(posedge clk or posedge reset) begin
             SUB_WAIT : begin
                 acc <= alu_result;
                 state <= FETCH;
-                $monitor("Alu_SUB result : %d", acc);
+                //$monitor("Alu_SUB result : %d", acc);
             end
         endcase
 end
