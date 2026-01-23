@@ -115,7 +115,7 @@ always @(posedge clk or posedge reset) begin
             ADD : begin
                 $display("[%0t] ADD: acc = %0d + %0d = %0d", $time, acc, alu_b, acc + alu_b);
                 insturctionReading <= ad;
-                alu_b <= d_out;
+                alu_b <= AddresInstruction;
                 acc <= alu_result;
                 state <= FETCH;
                 $display("Alu_ADD result : %d", acc);
@@ -123,7 +123,7 @@ always @(posedge clk or posedge reset) begin
             SUB : begin
                 $display("[%0t] SUB: acc = %0d - %0d = %0d", $time, acc, alu_b, acc - alu_b);
                 insturctionReading <= sub;
-                alu_b <= d_out;
+                alu_b <= AddresInstruction;
                 acc <= alu_result;
                 state <= FETCH;
                 $display("Alu_SUB result : %d", acc);
