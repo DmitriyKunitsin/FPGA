@@ -48,11 +48,28 @@ end
 
 
 // Out Console
-initial begin
-    $monitor("[%0t] acc=%0d, ip=%0d, state=%d, num_cycles=%0d, d_out=%0d",
-                $time, simple_cpu.acc, simple_cpu.ip, simple_cpu.state, 
-                simple_cpu.num_cycles, simple_cpu.d_out);
-end
+//initial begin
+//   $monitor("[%0t] acc=%0d, ip=%0d, state=%s, num_cycles=%0d, d_out=%0d",
+//               $time, simple_cpu.acc, simple_cpu.ip, simple_cpu.state, 
+//               simple_cpu.num_cycles, simple_cpu.d_out);
+//end
+ initial begin
+     $monitor("TIME=%0t | acc=%03d | ip=%0d | state=%-9s | num_cycles=%0d | d_out=%03d",
+         $time,
+         simple_cpu.acc,
+         simple_cpu.ip,
+         (simple_cpu.state == 3'b000) ? "FETCH"   :
+         (simple_cpu.state == 3'b001) ? "DECODE"  :
+         (simple_cpu.state == 3'b010) ? "EXECUTE" :
+         (simple_cpu.state == 3'b011) ? "LOAD"    :
+         (simple_cpu.state == 3'b100) ? "ADD"     :
+         (simple_cpu.state == 3'b101) ? "SUB"     :
+         (simple_cpu.state == 3'b110) ? "ADD_WAIT" :
+         (simple_cpu.state == 3'b111) ? "SUB_WAIT"    : "UNKNOWN",
+         simple_cpu.num_cycles,
+         simple_cpu.d_out
+     );
+ end
 
 simple_cpu dut(
     .clk(clk),

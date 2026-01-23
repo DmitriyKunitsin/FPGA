@@ -54,8 +54,8 @@ enum logic [2:0] {FETCH = 3'b000, // FETCH - freeding
                  LOAD = 3'b011,// LOAD DATA for RAM
                  ADD = 3'b100,// +++ plus
                  SUB = 3'b101,// ---- minus
-                 BUS_FREE = 3'b110,// Data bus free 
-                 FREE = 3'b111} state;
+                 ADD_WAIT = 3'b110,// Data bus free 
+                 SUB_WAIT = 3'b111} state;
                  
 parameter ld    = 3'b011; // CMD LOAD
 parameter ad    = 3'b100; // CMD ADD
@@ -103,7 +103,6 @@ always @(posedge clk or posedge reset) begin
                             ad : state <= ADD;
                             sub : state <= SUB;
                     endcase
-                    state <= BUS_FREE;
                 end
             end
             LOAD : begin
@@ -114,8 +113,11 @@ always @(posedge clk or posedge reset) begin
             end
             ADD : begin
                 $monitor("[%0t] ADD: acc = %0d + %0d = %0d", $time, acc, alu_b, acc + alu_b);
-                //insturctionReading <= ad;
+                insturctionReading <= ad;
                 alu_b <= AddresInstruction;
+                state <= ADD_WAIT;
+            end
+            ADD_WAIT: begin
                 acc <= alu_result;
                 state <= FETCH;
                 $monitor("Alu_ADD result : %d", acc);
@@ -124,12 +126,12 @@ always @(posedge clk or posedge reset) begin
                 $monitor("[%0t] SUB: acc = %0d - %0d = %0d", $time, acc, alu_b, acc - alu_b);
                 //insturctionReading <= sub;
                 alu_b <= AddresInstruction;
+                state <= SUB_WAIT;
+            end
+            SUB_WAIT : begin
                 acc <= alu_result;
                 state <= FETCH;
                 $monitor("Alu_SUB result : %d", acc);
-            end
-            BUS_FREE : begin
-                state <= FETCH;
             end
         endcase
 end
