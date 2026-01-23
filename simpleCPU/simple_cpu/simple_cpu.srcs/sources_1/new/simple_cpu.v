@@ -95,18 +95,18 @@ always @(posedge clk or posedge reset) begin
                 state <= EXECUTE;
             end
             EXECUTE : begin
-                if(num_cycles > 0) begin
-                    num_cycles <= num_cycles - 1; // Waited done instruction
-                end else begin
-                    case(insturctionReading)
-                            ld : state <= LOAD;
-                            ad : state <= ADD;
-                            sub : state <= SUB;
-                    endcase
-                end
+                // if(num_cycles > 0) begin
+                //     num_cycles <= num_cycles - 1; // Waited done instruction
+                // end else begin
+                case(insturctionReading)
+                        ld : state <= LOAD;
+                        ad : state <= ADD;
+                        sub : state <= SUB;
+                endcase
+                //end
             end
             LOAD : begin
-                $monitor("[%0t] LOAD: acc <= %0d (from RAM[%0d])", $time, d_out, AddresInstruction);
+                $monitor("[%0t] LOAD: d_out <= %0d (from RAM[%0d])", $time, d_out, AddresInstruction);
                 acc <= AddresInstruction; // read Data in adress
                 state <= FETCH;
                 $monitor("Result CMD_LOAD :acc = %d", acc);
