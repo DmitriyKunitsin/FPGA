@@ -16,6 +16,7 @@
 *.edif
 *.vn
 *.vm
+*.xpr
 
 ## SDF
 *.sdf
