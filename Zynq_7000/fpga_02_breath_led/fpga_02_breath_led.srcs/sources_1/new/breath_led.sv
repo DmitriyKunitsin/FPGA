@@ -1,65 +1,65 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
+// Company:
+// Engineer:
+//
 // Create Date: 11.08.2026 15:46:02
-// Design Name: 
+// Design Name:
 // Module Name: breath_led
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
+// Project Name:
+// Target Devices:
+// Tool Versions:
+// Description:
+//
+// Dependencies:
+//
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
-// 
+//
 //////////////////////////////////////////////////////////////////////////////////
 
 module breath_led #(
-    parameter CLOCK_FRQ = 50000000,  // Частота тактового генератора 50M
-    parameter PWM_FRQ = 1000,  // Частота ШИМ 1кГц
-    parameter BREATH_PERIOD = 2,  // Период дыхания 2 секунды
-    parameter   SET_COMPARE_FRQ=1000,// Частота обновления яркости 1 кГц
-    parameter   PWM_COUNTER_MAX=CLOCK_FRQ/PWM_FRQ,// шагов ШИМ за один период
-    parameter BREATH_COUNTER_MAX = CLOCK_FRQ * BREATH_PERIOD,  // тактов за 2 секунды
-    parameter SET_COMPARE_COUNTER_MAX = CLOCK_FRQ / SET_COMPARE_FRQ,  // 
-    parameter  	COMPARE_VALUE_STEP=PWM_COUNTER_MAX/SET_COMPARE_FRQ// шаг изменения яркости за 1 мс
+    parameter int CLOCK_FRQ = 50000000,  // Частота тактового генератора 50M
+    parameter int PWM_FRQ = 1000,  // Частота ШИМ 1кГц
+    parameter int BREATH_PERIOD = 2,  // Период дыхания 2 секунды
+    parameter int SET_COMPARE_FRQ=1000,// Частота обновления яркости 1 кГц
+    parameter int PWM_COUNTER_MAX=CLOCK_FRQ/PWM_FRQ,// шагов ШИМ за один период
+    parameter int BREATH_COUNTER_MAX = CLOCK_FRQ * BREATH_PERIOD,  // тактов за 2 секунды
+    parameter int SET_COMPARE_COUNTER_MAX = CLOCK_FRQ / SET_COMPARE_FRQ,  //
+    parameter int COMPARE_VALUE_STEP=PWM_COUNTER_MAX/SET_COMPARE_FRQ// шаг изменения яркости за 1 мс
 ) (
     input logic clk,
     input logic rstn,
     output logic [3:0] led
 );
-  logic [31:0] counter_pwm;
-  logic [31:0] counter_breath;
-  logic [31:0] counter_compare;
-  logic [31:0] compare_value;
+  bit [31:0] counter_pwm;
+  bit [31:0] counter_breath;
+  bit [31:0] counter_compare;
+  bit [31:0] compare_value;
   logic pwm_period_clk_view;
   logic breath_period_clk_view;
   logic compare_period_clk_view;
-  logic [3:0] led_number;
+  bit [3:0] led_number;
 
   logic led_breath_view;
   logic breath_dir;
-  logic [3:0] led_logic;
+  bit [3:0] led_logic;
   assign led = led_logic;
 
   // led
   always @(posedge clk) begin
     if (rstn == 0) led_logic <= 0;
     case (led_number)
-      8'b000:  led_logic[0] <= led_breath_view;
-      8'b001:  led_logic[1] <= led_breath_view;
-      8'b010:  led_logic[2] <= led_breath_view;
-      8'b011:  led_logic[3] <= led_breath_view;
+      2'b000:  led_logic[0] <= led_breath_view;
+      2'b001:  led_logic[1] <= led_breath_view;
+      2'b010:  led_logic[2] <= led_breath_view;
+      2'b011:  led_logic[3] <= led_breath_view;
       default: led_logic[0] <= led_breath_view;
     endcase
   end
 
-  // ШИМ 
+  // ШИМ
   always @(posedge clk or negedge rstn) begin
     if (rstn == 0) begin
       counter_pwm <= 0;
