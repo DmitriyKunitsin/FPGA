@@ -45,7 +45,7 @@ module breath_led #(
   assign led = led_logic;
 
   // led
-  always @(posedge clk) begin
+  always_ff @(posedge clk) begin
     if (rstn == 0) led_logic <= 0;  // Обнуляем если ресет кнопка
     case (led_number)  // Обовляем состояние выбранного led
       2'b000:  led_logic[0] <= led_breath_view;
@@ -57,7 +57,7 @@ module breath_led #(
   end
 
   // ШИМ
-  always @(posedge clk or negedge rstn) begin
+  always_ff @(posedge clk or negedge rstn) begin
     if (rstn == 0) begin  // Обнуляем шип и период
       counter_pwm <= 0;
     end else begin
@@ -73,12 +73,11 @@ module breath_led #(
       end
     end
   end
-
   // Логика управления дыханием led
   logic [3:0] led_number_state;
-  always @(posedge clk or negedge rstn) begin
+  always_ff @(posedge clk or negedge rstn) begin
     if (rstn == 0) begin  // кнопка сброса
-      led_number = 0;
+      led_number <= 0;
       counter_breath <= 0;
       breath_dir <= 0;
       led_number_state <= 0;
@@ -90,36 +89,36 @@ module breath_led #(
         if (breath_dir == 1) begin
           case (led_number_state)  // led для дыхания
             0: begin
-              led_number_state = 1;
-              led_number = 0;
+              led_number_state <= 1;
+              led_number <= 0;
             end
             1: begin
-              led_number_state = 2;
-              led_number = 1;
+              led_number_state <= 2;
+              led_number <= 1;
             end
             2: begin
-              led_number_state = 3;
-              led_number = 2;
+              led_number_state <= 3;
+              led_number <= 2;
             end
             3: begin
-              led_number_state = 4;
-              led_number = 3;
+              led_number_state <= 4;
+              led_number <= 3;
             end
             4: begin
-              led_number_state = 5;
-              led_number = 2;
+              led_number_state <= 5;
+              led_number <= 2;
             end
             5: begin
-              led_number_state = 6;
-              led_number = 1;
+              led_number_state <= 6;
+              led_number <= 1;
             end
             6: begin
-              led_number_state = 0;
-              led_number = 0;
+              led_number_state <= 0;
+              led_number <= 0;
             end
             default: begin
-              led_number_state = 0;
-              led_number = 0;
+              led_number_state <= 0;
+              led_number <= 0;
             end
           endcase
         end
@@ -128,7 +127,7 @@ module breath_led #(
   end
 
   // Блок счетчика для шага ШИМ (шаг изменения яркости)
-  always @(posedge clk or negedge rstn) begin
+  always_ff @(posedge clk or negedge rstn) begin
     if (rstn == 0) begin  // кнопка сброса
       counter_compare <= 0;
       compare_value   <= 0;
