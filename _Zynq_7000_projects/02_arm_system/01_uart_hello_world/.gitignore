@@ -1,0 +1,133 @@
+#########################################################################################
+##  Project    : Collect of various scripts for working with EDA-tools (ASIC/FPGA/etc) ##
+##  Link       : https://github.com/DmitriyKunitsin/FPGA                               ##
+##  Description: .gitignore                                                            ##
+##  Usage      : just rename or add contain to .gitignore                              ##
+##  License    : MIT                                                                   ##
+#########################################################################################
+
+## log files
+*.log
+*.jou
+*.rpt
+*.vdi
+
+## bitstream
+*.bit
+*.bin
+*.mcs
+*.svf
+*.image
+
+## netlist
+*.edf
+*.edif
+*.vn
+*.vm
+
+## SDF
+*.sdf
+
+## sim dump
+*.vcd
+*.saif
+*.tcf
+*.wdb
+
+## others
+unisims
+
+## C-files
+*.elf
+*.a
+*.sa
+*.so
+*.lib
+
+## dirs
+vivado.cache/
+vivado.hw/
+vivado.ip_user_files/
+vivado.runs/
+vivado.sim/
+
+###### for Xilinx Vivado|ISE
+.Xil/
+.cache/
+fsm_encoding.os
+tab_*/
+webtalk.*
+vivado_pid*.str
+hs_err_pid*
+xelab.*
+xsim.*
+xvlog.*
+*.cache
+*.sim
+*.runs
+*.hw
+*.backup.*
+*.debug
+
+## checkpoint files
+*.dcp
+
+# ====================================================
+# Vitis / SDK generated files
+# ====================================================
+*.xsa
+*.hdf
+*.xsa
+heloworld/
+zynq_fsbl/
+ps7_init.*
+ps7_init_gpl.*
+build/
+
+# ====================================================
+# Vivado project garbage (anywhere)
+# ====================================================
+**/*.gen/
+**/*.ip_user_files/
+**/*.runs/
+**/*.sim/
+**/*.cache/
+**/*.hw/
+**/*.bda
+**/*.bxml
+**/xgui/
+**/sim_scripts/
+**/protoinst/
+
+# ====================================================
+# Vitis / SDK garbage (anywhere)
+# ====================================================
+**/vitis_*/
+**/.theia/
+**/.lock
+**/.peers.ini
+**/.vitisWorkspace.json
+**/logs/
+**/compile_commands.json
+**/CMakeLists.txt
+**/UserConfig.cmake
+**/app.yaml
+**/vitis-comp.json
+**/*.cmake
+**/.repo.yaml
+
+# ====================================================
+# Build artifacts
+# ====================================================
+**/Debug/
+**/Release/
+**/*.o
+**/*.d
+
+# ====================================================
+# IDE / OS junk
+# ====================================================
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
