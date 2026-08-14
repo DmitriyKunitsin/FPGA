@@ -98,8 +98,8 @@ Thumbs.db
 - [ ] 14_eth_mdio
 - [ ] 15_eth_udp_echo
 
-#### 02_arm_system (0/14)
-- [ ] 01_uart_hello_world
+#### 02_arm_system (1/14)
+- [✅] 01_uart_hello_world
 - [ ] 02_mio_gpio
 - [ ] 03_axi_gpio
 - [ ] 04_axi_gpio_interrupt
